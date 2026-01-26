@@ -1,0 +1,17 @@
+﻿rename:
+  # raw_name: canonical_name
+  "How many times do you attend your SHG meetings in a month?": meeting_attendance
+  "How actively involved would you say you are in your SHG's activities?": involvement_level
+  shg_meetings_attended_monthly: meeting_attendance
+  engagement_level: involvement_level
+
+categoricals:
+  - pre_jeevika_income_bucket_clean
+  - meeting_attendance
+  - involvement_level
+
+numerics:
+  - household_income_increase_percent
+
+geography:
+  village_block: village_or_block

@@ -1,0 +1,3 @@
+id,predicted_class,probability,segment,primary_action,user_feedback,notes,threshold,model_name,timestamp
+6503,0,0.0,Mainstream,Maintain engagement and monitor,reviewed_no_action,,0.5,prediction_v1,2026-01-26T09:29:34.137512
+6503,0,0.0,Mainstream,Maintain engagement and monitor,override_incorrect,,0.5,prediction_v1,2026-01-26T09:29:35.771241

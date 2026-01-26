@@ -1,0 +1,22 @@
+data:
+  raw_path: data/raw/jeevika_survey.csv
+  processed_path: data/processed/cleaned.parquet
+
+targets:
+  disengagement:
+    attendance_low: true
+    involvement_low: true
+    sentiment_negative: true
+
+segmentation:
+  method: rule_based        # rule_based | clustering
+  max_segments: 5
+
+models:
+  type: logistic            # logistic | tree
+  test_size: 0.2
+  random_state: 42
+
+reporting:
+  mode: hybrid              # deterministic | llm | hybrid
+  include_charts: true
