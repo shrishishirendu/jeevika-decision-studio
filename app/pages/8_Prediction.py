@@ -18,6 +18,7 @@ from src import ml_high_uplift as ml_high_uplift
 from src import recommendations as recommendations
 from src.readiness import build_readiness_frame
 from src.segments import assign_population_segments
+from app.utils.layout import render_page_header
 
 CONFIG_PATH = ROOT / "config" / "config.yaml"
 
@@ -33,7 +34,7 @@ def safe_float(value):
 
 st.set_page_config(page_title="High Uplift Prediction", page_icon="High Uplift", layout="wide")
 
-st.title("High Uplift Prediction")
+render_page_header("High Uplift Prediction")
 
 if not CONFIG_PATH.exists():
     st.error("Missing config/config.yaml. Please add it to continue.")

@@ -22,12 +22,13 @@ from src.engagement_indices import (
     compute_total_engagement,
 )
 from src.segments import assign_population_segments, segment_quality_checks, summarize_segments
+from app.utils.layout import render_page_header
 
 CONFIG_PATH = ROOT / "config" / "config.yaml"
 
 st.set_page_config(page_title="Population Structure", page_icon="Population Structure", layout="wide")
 
-st.title("Population Structure")
+render_page_header("Population Structure")
 st.caption(
     "Segments are defined using engagement indices (Behavioral, Cognitive, Affective) and quartiles for robustness."
 )

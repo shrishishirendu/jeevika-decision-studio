@@ -15,13 +15,14 @@ if str(ROOT) not in sys.path:
 from app.ui_filters import apply_filters, load_clean_df
 from src import recommendations as recommendations
 from src.voice_agent import generate_executive_answer, speak_text, transcribe_audio
+from app.utils.layout import render_page_header
 
 CONFIG_PATH = ROOT / "config" / "config.yaml"
 PRED_PATH = ROOT / "data" / "processed" / "predicted_high_uplift.parquet"
 
 st.set_page_config(page_title="Executive Analyst", page_icon="Executive Analyst", layout="wide")
 
-st.title("Executive Analyst")
+render_page_header("Executive Analyst")
 st.caption("Ask a question by voice, get an executive brief and audio response.")
 
 if not CONFIG_PATH.exists():

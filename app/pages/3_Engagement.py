@@ -27,6 +27,7 @@ from src.features import (
     compute_empowerment_score,
     compute_participation_count,
 )
+from app.utils.layout import render_page_header
 
 
 def safe_float(value):
@@ -79,7 +80,7 @@ CONFIG_PATH = ROOT / "config" / "config.yaml"
 
 st.set_page_config(page_title="Engagement", page_icon="Engagement", layout="wide")
 
-st.title("Engagement")
+render_page_header("Engagement")
 
 if not CONFIG_PATH.exists():
     st.error("Missing config/config.yaml. Please add it to continue.")

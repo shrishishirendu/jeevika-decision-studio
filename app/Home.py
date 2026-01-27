@@ -4,41 +4,26 @@ import sys
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 
-st.set_page_config(
-    page_title="Jeevika Decision Studio",
-    page_icon="??",
-    layout="wide",
+from app.utils.layout import render_page_header
+
+st.set_page_config(page_title="Jeevika Survey", layout="wide")
+
+HTML_PATH = Path(
+    r"C:\All Folders\Learning AI\jeevika\jeevika-decision-studio\data\jeevika-survey-hindi.html"
 )
 
-st.title("Jeevika Decision Studio")
-st.markdown(
-    """
-A Streamlit workspace for exploring Jeevika survey data, assessing data health,
-segmenting beneficiaries, and generating decision-ready insights.
+render_page_header("Jeevika Survey")
 
-Use the sidebar to navigate through the modules. Start with **Data Health** to
-validate the dataset before moving into analytics and recommendations.
-"""
-)
-
-st.subheader("Navigation")
-st.markdown(
-    """
-- **0_Data_Health**: Basic dataset stats, missing values, and readiness checks
-- **1_Overview**: High-level summaries and key indicators
-- **2_Engagement**: Participation and engagement trends
-- **3_Awareness_Access_Gap**: Awareness vs. access analysis
-- **4_Impact**: Outcome and impact signals
-- **5_Segments**: Rule-based or clustering segments
-- **6_Risk_Opportunity**: At-risk groups and growth opportunities
-- **7_Recommendations**: Prescriptive actions and rules
-- **8_Executive_Analyst**: Executive summary and analyst view
-"""
-)
-
-st.info("Tip: Ensure `data/raw/jeevika_survey.csv` is present before analysis.")
+try:
+    html = HTML_PATH.read_text(encoding="utf-8")
+    components.html(html, height=1400, scrolling=True)
+except FileNotFoundError:
+    st.error(f"Survey HTML file not found at: {HTML_PATH}")
+except Exception as exc:  # pragma: no cover
+    st.error(f"Failed to load survey HTML: {exc}")

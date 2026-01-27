@@ -23,6 +23,7 @@ from src.engagement_indices import (
 )
 from src.features import compute_empowerment_score
 from src.segments import assign_population_segments
+from app.utils.layout import render_page_header
 
 CONFIG_PATH = ROOT / "config" / "config.yaml"
 
@@ -38,7 +39,7 @@ def safe_float(value):
 
 st.set_page_config(page_title="Impact & Outcomes", page_icon="Impact & Outcomes", layout="wide")
 
-st.title("Impact & Outcomes")
+render_page_header("Impact & Outcomes")
 
 if not CONFIG_PATH.exists():
     st.error("Missing config/config.yaml. Please add it to continue.")

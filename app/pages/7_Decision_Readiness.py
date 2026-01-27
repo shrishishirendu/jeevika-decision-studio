@@ -16,12 +16,13 @@ if str(ROOT) not in sys.path:
 from app.ui_filters import apply_filters, load_clean_df
 from src.readiness import build_readiness_frame
 from src.segments import assign_population_segments
+from app.utils.layout import render_page_header
 
 CONFIG_PATH = ROOT / "config" / "config.yaml"
 
 st.set_page_config(page_title="Decision Readiness & Targeting", page_icon="Decision Readiness", layout="wide")
 
-st.title("Decision Readiness & Targeting")
+render_page_header("Decision Readiness & Targeting")
 st.caption(
     "Readiness combines Engagement, Awareness, and Access to target field actions with deterministic rules."
 )

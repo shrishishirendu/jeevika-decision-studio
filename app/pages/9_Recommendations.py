@@ -17,6 +17,7 @@ from src.ml_high_uplift import get_predictions_for_df
 from src import recommendations as recommendations
 from src.readiness import build_readiness_frame
 from src.segments import assign_population_segments
+from app.utils.layout import render_page_header
 
 CONFIG_PATH = ROOT / "config" / "config.yaml"
 PRED_PATH = ROOT / "data" / "processed" / "predicted_high_uplift.parquet"
@@ -24,7 +25,7 @@ LOG_PATH = ROOT / "data" / "recommendation_logs.csv"
 
 st.set_page_config(page_title="Recommendations", page_icon="Recommendations", layout="wide")
 
-st.title("Recommendations")
+render_page_header("Recommendations")
 st.caption("Explainable recommendations based on prediction, segment, and key drivers.")
 
 if not CONFIG_PATH.exists():

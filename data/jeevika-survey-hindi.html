@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>जीविका दीदी - सर्वेक्षण | Jeevika Didi Survey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Devanagari', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        
+        /* Header with Jeevika colors */
+        .header {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #CD853F 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 5px solid #FFD700;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.3em;
+            margin-bottom: 8px;
+            opacity: 0.95;
+        }
+        
+        .header .meta {
+            font-size: 0.95em;
+            opacity: 0.9;
+            border-top: 2px solid rgba(255,255,255,0.3);
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        
+        .content {
+            padding: 40px 35px;
+        }
+        
+        .intro {
+            background: linear-gradient(135deg, #FFF8DC 0%, #FFE4B5 100%);
+            border-left: 5px solid #8B4513;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        
+        .intro p {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+        
+        .section {
+            margin-bottom: 35px;
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            font-size: 1.25em;
+            font-weight: 600;
+        }
+        
+        .question {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .question:last-child {
+            border-bottom: none;
+        }
+        
+        .question-number {
+            background: #8B4513;
+            color: white;
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .question-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        
+        .options {
+            margin-left: 45px;
+        }
+        
+        .option {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 3px;
+            background: #f9f9f9;
+            transition: background 0.3s;
+        }
+        
+        .option:hover {
+            background: #fffacd;
+        }
+        
+        .option input[type="checkbox"],
+        .option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .option label {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-top: 5px solid #FFD700;
+        }
+        
+        .footer p {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        
+        .notes {
+            background: #f0f0f0;
+            border-left: 4px solid #8B4513;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        
+        .notes h3 {
+            color: #8B4513;
+            margin-bottom: 10px;
+        }
+        
+        .notes li {
+            margin-left: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 3em;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: -1;
+            color: #8B4513;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .options {
+                margin-left: 30px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                margin: 0;
+            }
+            
+            .watermark {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="watermark">जीविका</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🌾 जीविका दीदी योजना 🌾</h1>
+            <div class="subtitle">आधारभूत स्तर पर आकलन सर्वेक्षण</div>
+            <div class="subtitle">Comprehensive Ground-Level Assessment Survey</div>
+            <div class="meta">
+                <strong>सर्वेक्षण अवधि:</strong> 15-20 मिनट | 
+                <strong>लक्ष्य:</strong> जीविका दीदी एसएचजी सदस्य महिलाएं
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="intro">
+                <p><strong>🙏 नमस्ते!</strong></p>
+                <p>आप जीविका दीदी योजना के बारे में अपने विचार साझा करने में मदद कर रही हैं। आपकी ईमानदारी और प्रतिक्रिया बहुत महत्वपूर्ण है।</p>
+                <p><strong>Note:</strong> यह सर्वेक्षण गोपनीय है। आपकी व्यक्तिगत जानकारी सुरक्षित रहेगी।</p>
+            </div>
+            
+            <!-- SECTION A -->
+            <div class="section">
+                <div class="section-header">खंड ए: जनसांख्यिकीय और कार्यक्रम भागीदारी</div>
+                
+                <div class="question">
+                    <span class="question-number">1</span>
+                    <span class="question-text">आप अपने जीविका स्वयं सहायता समूह (एसएचजी) की सदस्य कितने समय से हैं?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q1"> 6 महीने से कम</div>
+                        <div class="option"><input type="radio" name="q1"> 6 महीने से 1 साल</div>
+                        <div class="option"><input type="radio" name="q1"> 1 से 2 साल</div>
+                        <div class="option"><input type="radio" name="q1"> 2 से 3 साल</div>
+                        <div class="option"><input type="radio" name="q1"> 3 साल से अधिक</div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <span class="question-number">2</span>
+                    <span class="question-text">आप किस गांव/ब्लॉक से हैं?</span>
+                    <div class="options">
+                        <div class="option"><input type="text" placeholder="गांव/ब्लॉक का नाम लिखें" style="width: 300px; padding: 8px; border: 1px solid #ddd; border-radius: 3px;"></div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <span class="question-number">3</span>
+                    <span class="question-text">आप एक महीने में अपनी एसएचजी बैठकों में कितनी बार भाग लेती हैं?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q3"> मैं सभी बैठकें (3-4 बैठकें) में भाग लेती हूं</div>
+                        <div class="option"><input type="radio" name="q3"> मैं अधिकांश बैठकों (2 बैठकें) में भाग लेती हूं</div>
+                        <div class="option"><input type="radio" name="q3"> मैं कुछ बैठकों (1 बैठक) में भाग लेती हूं</div>
+                        <div class="option"><input type="radio" name="q3"> मैं शायद ही कभी बैठकों में भाग लेती हूं</div>
+                        <div class="option"><input type="radio" name="q3"> मैं बैठकों में भाग नहीं लेती</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SECTION B -->
+            <div class="section">
+                <div class="section-header">खंड बी: जीविका योजनाओं के साथ संलग्नता स्तर</div>
+                
+                <div class="question">
+                    <span class="question-number">4</span>
+                    <span class="question-text">आप वर्तमान में निम्नलिखित में से किन जीविका कार्यक्रमों में भाग ले रही हैं? (सभी पर निशान लगाएं)</span>
+                    <div class="options">
+                        <div class="option"><input type="checkbox"> एसएचजी बचत कार्यक्रम</div>
+                        <div class="option"><input type="checkbox"> एसएचजी ऋण/ऋण सुविधा</div>
+                        <div class="option"><input type="checkbox"> कृषि हस्तक्षेप (एसआरआई, रसोई बागवानी, सब्जी की खेती आदि)</div>
+                        <div class="option"><input type="checkbox"> पशुपालन गतिविधि (बकरी पालन, कुक्कुट, डेयरी)</div>
+                        <div class="option"><input type="checkbox"> गैर-कृषि उद्यम (सिलाई, हस्तशिल्प, मिथिला चित्रकला, मोमबत्ती/अगरबत्ती बनाना)</div>
+                        <div class="option"><input type="checkbox"> दीदी की रसोई (सामुदायिक रसोई/खाद्य प्रसंस्करण)</div>
+                        <div class="option"><input type="checkbox"> उत्पादक समूह/किसान समूह</div>
+                        <div class="option"><input type="checkbox"> गांव संगठन (वीओ) गतिविधियां</div>
+                        <div class="option"><input type="checkbox"> इनमें से कोई नहीं</div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <span class="question-number">5</span>
+                    <span class="question-text">आप अपनी एसएचजी की गतिविधियों में कितनी सक्रिय हैं?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q5"> बहुत सक्रिय (मैं जिम्मेदारी लेती हूं और गतिविधियों का नेतृत्व करती हूं)</div>
+                        <div class="option"><input type="radio" name="q5"> सक्रिय (मैं नियमित रूप से भाग लेती हूं और विचार देती हूं)</div>
+                        <div class="option"><input type="radio" name="q5"> मध्यम रूप से सक्रिय (मैं भाग लेती हूं जब संभव हो)</div>
+                        <div class="option"><input type="radio" name="q5"> निष्क्रिय (मैं ज्यादातर सुनती हूं और बचत करती हूं)</div>
+                        <div class="option"><input type="radio" name="q5"> सक्रिय नहीं (मैं सदस्य तो हूं पर भाग नहीं लेती)</div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <span class="question-number">6</span>
+                    <span class="question-text">बैठकों और बचत के अलावा, आप जीविका द्वारा प्रचारित आय-उत्पादक गतिविधियों में कितनी बार भाग लेती हैं?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q6"> मैं यह नियमित रूप से करती हूं (साप्ताहिक या अधिक बार)</div>
+                        <div class="option"><input type="radio" name="q6"> मैं यह कभी-कभी करती हूं (मासिक)</div>
+                        <div class="option"><input type="radio" name="q6"> मैं यह शायद ही कभी करती हूं (साल में कुछ बार)</div>
+                        <div class="option"><input type="radio" name="q6"> मैंने कोशिश की है लेकिन रोक दी</div>
+                        <div class="option"><input type="radio" name="q6"> मैंने अभी कोई आय-उत्पादक गतिविधि नहीं की</div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <span class="question-number">7</span>
+                    <span class="question-text">क्या आपने अपनी एसएचजी से ऋण लिया है?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q7"> हां, कई बार</div>
+                        <div class="option"><input type="radio" name="q7"> हां, एक या दो बार</div>
+                        <div class="option"><input type="radio" name="q7"> नहीं, पर मुझे दिलचस्पी है</div>
+                        <div class="option"><input type="radio" name="q7"> नहीं, और मैं नहीं लेना चाहती</div>
+                        <div class="option"><input type="radio" name="q7"> मुझे ऋण तक पहुंचना नहीं पता</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SECTION C -->
+            <div class="section">
+                <div class="section-header">खंड सी: जीविका लाभों और योजनाओं की जागरूकता</div>
+                
+                <div class="question">
+                    <span class="question-number">8</span>
+                    <span class="question-text">आप निम्नलिखित में से किन जीविका/सरकारी योजनाओं के बारे में जानती हैं? (सभी पर निशान लगाएं)</span>
+                    <div class="options">
+                        <div class="option"><input type="checkbox"> एसएचजी बचत और ऋण योजना</div>
+                        <div class="option"><input type="checkbox"> मुख्यमंत्री महिला रोजगार योजना (₹10,000 रोजगार अनुदान)</div>
+                        <div class="option"><input type="checkbox"> बैंक के साथ ऋण जुड़ाव</div>
+                        <div class="option"><input type="checkbox"> कृषि प्रशिक्षण और सहायता (एसआरआई, जैव खेती आदि)</div>
+                        <div class="option"><input type="checkbox"> पशुपालन और पशु पालन सहायता</div>
+                        <div class="option"><input type="checkbox"> कौशल प्रशिक्षण और आजीविका विविधता</div>
+                        <div class="option"><input type="checkbox"> दीदी की रसोई (सामुदायिक रसोई पहल)</div>
+                        <div class="option"><input type="checkbox"> लैंगिक अधिकार और कानूनी साक्षरता प्रशिक्षण</div>
+                        <div class="option"><input type="checkbox"> जीविका से जुड़े स्वास्थ्य और पोषण कार्यक्रम</div>
+                        <div class="option"><input type="checkbox"> सरकारी कल्याण योजनाओं से जुड़ाव (पीडीएस, मनरेगा, आईसीडीएस)</div>
+                        <div class="option"><input type="checkbox"> मैं अधिकांश योजनाओं से अवगत नहीं हूं</div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <span class="question-number">9</span>
+                    <span class="question-text">आपने पहली बार इन जीविका योजनाओं के बारे में कैसे जाना?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q9"> अपनी एसएचजी सदस्य या समूह नेता के माध्यम से</div>
+                        <div class="option"><input type="radio" name="q9"> सामुदायिक जुटाने वाले (सीएम)/जीविका कर्मचारी के माध्यम से</div>
+                        <div class="option"><input type="radio" name="q9"> गांव संगठन (वीओ) के माध्यम से</div>
+                        <div class="option"><input type="radio" name="q9"> गांव की बैठकों/ग्राम सभा के माध्यम से</div>
+                        <div class="option"><input type="radio" name="q9"> अन्य महिलाओं से सुन-सुनकर</div>
+                        <div class="option"><input type="radio" name="q9"> सरकारी घोषणाओं या पोस्टर के माध्यम से</div>
+                        <div class="option"><input type="radio" name="q9"> मुझे नहीं पता कि मैंने इसके बारे में कैसे जाना</div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <span class="question-number">10</span>
+                    <span class="question-text">उन योजनाओं के बारे में जो आप जानती हैं, आपको कितनी स्पष्ट जानकारी मिली है?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q10"> बहुत स्पष्ट - मैं सभी विवरण समझती हूं</div>
+                        <div class="option"><input type="radio" name="q10"> ज्यादातर स्पष्ट - मैं मुख्य लाभ समझती हूं</div>
+                        <div class="option"><input type="radio" name="q10"> कुछ स्पष्ट - मुझे सामान्य विचार है</div>
+                        <div class="option"><input type="radio" name="q10"> बहुत स्पष्ट नहीं - मुझे कुछ बातें भ्रामक लगती हैं</div>
+                        <div class="option"><input type="radio" name="q10"> बिल्कुल स्पष्ट नहीं - मैं योजनाओं को नहीं समझती</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SECTION D - ABBREVIATED FOR PDF -->
+            <div class="section">
+                <div class="section-header">खंड डी: महत्व का आकलन एवं सुझाव</div>
+                
+                <div class="question">
+                    <span class="question-number">13</span>
+                    <span class="question-text">आपको लगता है कि जीविका को आपके गांव में किन क्षेत्रों पर अधिक ध्यान देना चाहिए? (शीर्ष 3 चुनें)</span>
+                    <div class="options">
+                        <div class="option"><input type="checkbox"> उत्पादों (कृषि और गैर-कृषि) बेचने के लिए बेहतर बाजार जुड़ाव</div>
+                        <div class="option"><input type="checkbox"> अधिक कौशल प्रशिक्षण और व्यावसायिक कार्यक्रम</div>
+                        <div class="option"><input type="checkbox"> कम ब्याज दर पर आसान ऋण पहुंच</div>
+                        <div class="option"><input type="checkbox"> मौजूदा योजनाओं से परे अधिक आजीविका विकल्प</div>
+                        <div class="option"><input type="checkbox"> बेहतर स्वास्थ्य और पोषण कार्यक्रम</div>
+                        <div class="option"><input type="checkbox"> पशुपालन और पशु पालन के लिए मजबूत समर्थन</div>
+                        <div class="option"><input type="checkbox"> कृषि सहायता और बेहतर खेती तकनीकें</div>
+                        <div class="option"><input type="checkbox"> महिला नेतृत्व और शासन भूमिकाओं के लिए समर्थन</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SECTION E -->
+            <div class="section">
+                <div class="section-header">खंड ई: जीवन पर सकारात्मक प्रभाव</div>
+                
+                <div class="question">
+                    <span class="question-number">17</span>
+                    <span class="question-text">जीविका में शामिल होने के बाद से क्या आपके घर की आय बढ़ी है?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q17"> हां, महत्वपूर्ण रूप से (50% से अधिक वृद्धि)</div>
+                        <div class="option"><input type="radio" name="q17"> हां, मध्यम रूप से (20-50% वृद्धि)</div>
+                        <div class="option"><input type="radio" name="q17"> हां, थोड़ा (20% से कम वृद्धि)</div>
+                        <div class="option"><input type="radio" name="q17"> कोई बदलाव नहीं</div>
+                        <div class="option"><input type="radio" name="q17"> आय में कमी आई</div>
+                        <div class="option"><input type="radio" name="q17"> मुझे नहीं पता</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SECTION F -->
+            <div class="section">
+                <div class="section-header">खंड एफ: सामान्य धारणा और भावना</div>
+                
+                <div class="question">
+                    <span class="question-number">22</span>
+                    <span class="question-text">जीविका कार्यक्रम के प्रति आपकी समग्र भावना क्या है?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q22"> बहुत संतुष्ट - यह वास्तविक अंतर ला रहा है</div>
+                        <div class="option"><input type="radio" name="q22"> संतुष्ट - यह समग्र रूप से मददगार है</div>
+                        <div class="option"><input type="radio" name="q22"> तटस्थ - इसके सकारात्मक और नकारात्मक दोनों पहलू हैं</div>
+                        <div class="option"><input type="radio" name="q22"> असंतुष्ट - यह मेरी अपेक्षाओं को पूरा नहीं कर रहा</div>
+                        <div class="option"><input type="radio" name="q22"> बहुत असंतुष्ट - मुझे इसमें कोई मूल्य नहीं दिख रहा</div>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <span class="question-number">24</span>
+                    <span class="question-text">क्या आप अपने गांव की अन्य महिलाओं को जीविका की सिफारिश करेंगी?</span>
+                    <div class="options">
+                        <div class="option"><input type="radio" name="q24"> हां, निश्चित रूप से - मैं सभी महिलाओं को शामिल होने के लिए प्रोत्साहित करती हूं</div>
+                        <div class="option"><input type="radio" name="q24"> हां, संभवतः - इसके लाभ हैं</div>
+                        <div class="option"><input type="radio" name="q24"> शायद - यह व्यक्तिगत परिस्थितियों पर निर्भर करता है</div>
+                        <div class="option"><input type="radio" name="q24"> ज्यादा नहीं - बेहतर अवसर हैं</div>
+                        <div class="option"><input type="radio" name="q24"> नहीं - कार्यक्रम शामिल होने के लायक नहीं है</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notes">
+                <h3>📋 सर्वेक्षण प्रशासन के लिए नोट्स:</h3>
+                <ul>
+                    <li><strong>सेटिंग:</strong> एसएचजी बैठकों, घरों या सामुदायिक स्थानों पर सर्वेक्षण करें</li>
+                    <li><strong>भाषा:</strong> स्थानीय भाषा (हिंदी/क्षेत्रीय बोली) का उपयोग करें</li>
+                    <li><strong>समय:</strong> प्रति सर्वेक्षण 15-20 मिनट दें</li>
+                    <li><strong>गोपनीयता:</strong> महिलाएं सुरक्षित महसूस करें यह सुनिश्चित करें</li>
+                    <li><strong>टोन:</strong> सम्मानपूर्ण रहें, प्रतिक्रिया कार्यक्रम में सुधार में मदद करती है</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>🌾 जीविका दीदी - महिलाओं का सशक्तिकरण 🌾</strong></p>
+            <p>"जीविका में महिलाओं के सशक्तिकरण के लिए गांवों में जमीनी हकीकत को समझना महत्वपूर्ण है।"</p>
+            <p style="margin-top: 15px; font-size: 0.85em;">यह सर्वेक्षण बिहार में जीविका दीदी योजना के प्रभाव का आकलन करने के लिए डिज़ाइन किया गया है।</p>
+            <p style="font-size: 0.85em;">Generated: January 24, 2026 | Language: Hindi (हिंदी)</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+[[pages]]
+path = "app/Home.py"
+name = "Home"
+
+[[pages]]
+path = "app/pages/2_Data_Health.py"
+name = "Data Health"
+
+[[pages]]
+path = "app/pages/Overview.py"
+name = "Overview"
+
+[[pages]]
+path = "app/pages/3_Engagement.py"
+name = "Engagement"
+
+[[pages]]
+path = "app/pages/4_Awareness_Gap.py"
+name = "Awareness Gap"
+
+[[pages]]
+path = "app/pages/5_Impact.py"
+name = "Impact"
+
+[[pages]]
+path = "app/pages/6_Segments.py"
+name = "Segments"
+
+[[pages]]
+path = "app/pages/7_Decision_Readiness.py"
+name = "Decision Readiness"
+
+[[pages]]
+path = "app/pages/8_Prediction.py"
+name = "Prediction"
+
+[[pages]]
+path = "app/pages/9_Recommendations.py"
+name = "Recommendations"
+
+[[pages]]
+path = "app/pages/10_Executive_Analyst.py"
+name = "Executive Analyst"

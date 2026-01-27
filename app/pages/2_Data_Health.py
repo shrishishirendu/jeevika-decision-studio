@@ -18,13 +18,14 @@ from src.cleaning import clean_survey_df
 from src.imputation import compute_missing_profile, impute_dataframe
 from src import io as io_utils
 from src.schema import load_columns_config
+from app.utils.layout import render_page_header
 
 COLUMNS_PATH = ROOT / "config" / "columns.yaml"
 CONFIG_PATH = ROOT / "config" / "config.yaml"
 
 st.set_page_config(page_title="Data Health", page_icon="Data Health", layout="wide")
 
-st.title("Data Health")
+render_page_header("Data Health")
 st.caption("Basic dataset statistics and missing value report.")
 
 if not CONFIG_PATH.exists():

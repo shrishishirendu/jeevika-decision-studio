@@ -17,6 +17,7 @@ from app.ui_filters import apply_filters, load_clean_df
 from src.encoding import encode_likert_5
 from src.engagement_indices import compute_cognitive_index
 from src.segments import assign_population_segments
+from app.utils.layout import render_page_header
 
 CONFIG_PATH = ROOT / "config" / "config.yaml"
 
@@ -36,7 +37,7 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("Awareness Gaps & Information Barriers")
+render_page_header("Awareness Gaps & Information Barriers")
 
 if not CONFIG_PATH.exists():
     st.error("Missing config/config.yaml. Please add it to continue.")
