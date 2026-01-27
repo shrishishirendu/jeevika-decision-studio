@@ -19,13 +19,6 @@ HTML_PATH = asset_path("jeevika-survey-hindi.html")
 
 render_page_header("Jeevika Survey")
 
-with st.expander("Debug: Asset Paths"):
-    isoft_logo = asset_path("isoftpic.png")
-    jeevika_logo = asset_path("Jeevikapic.png")
-    st.write("iSoft:", str(isoft_logo), isoft_logo.exists())
-    st.write("Jeevika:", str(jeevika_logo), jeevika_logo.exists())
-    st.write("Survey:", str(HTML_PATH), HTML_PATH.exists())
-
 try:
     html = HTML_PATH.read_text(encoding="utf-8")
     components.html(html, height=1400, scrolling=True)

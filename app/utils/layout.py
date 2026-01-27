@@ -5,7 +5,7 @@ import streamlit as st
 from app.utils.paths import asset_path
 
 ISOFT_LOGO = asset_path("isoftpic.png")
-JEEVIKA_LOGO = asset_path("Jeevikapic.png")
+JEEVIKA_LOGO = asset_path("jeevikapic.png")
 
 
 def render_page_header(page_title: str) -> None:
@@ -50,9 +50,12 @@ def render_page_header(page_title: str) -> None:
 
     with col1:
         if ISOFT_LOGO.exists():
-            st.image(str(ISOFT_LOGO), width=130)
+            try:
+                st.image(ISOFT_LOGO.read_bytes(), width=130)
+            except Exception as exc:  # pragma: no cover
+                st.warning(f"iSoft logo load failed: {exc}")
         else:
-            st.warning("iSoft logo not found")
+            st.warning(f"Missing asset: {ISOFT_LOGO.name}")
 
     with col2:
         st.markdown(
@@ -62,6 +65,9 @@ def render_page_header(page_title: str) -> None:
 
     with col3:
         if JEEVIKA_LOGO.exists():
-            st.image(str(JEEVIKA_LOGO), width=130)
+            try:
+                st.image(JEEVIKA_LOGO.read_bytes(), width=130)
+            except Exception as exc:  # pragma: no cover
+                st.warning(f"Jeevika logo load failed: {exc}")
         else:
-            st.warning("Jeevika logo not found")
+            st.warning(f"Missing asset: {JEEVIKA_LOGO.name}")
