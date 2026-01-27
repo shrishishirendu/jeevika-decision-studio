@@ -11,14 +11,20 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 
 from app.utils.layout import render_page_header
+from app.utils.paths import asset_path
 
 st.set_page_config(page_title="Jeevika Survey", layout="wide")
 
-HTML_PATH = Path(
-    r"C:\All Folders\Learning AI\jeevika\jeevika-decision-studio\data\jeevika-survey-hindi.html"
-)
+HTML_PATH = asset_path("jeevika-survey-hindi.html")
 
 render_page_header("Jeevika Survey")
+
+with st.expander("Debug: Asset Paths"):
+    isoft_logo = asset_path("isoftpic.png")
+    jeevika_logo = asset_path("Jeevikapic.png")
+    st.write("iSoft:", str(isoft_logo), isoft_logo.exists())
+    st.write("Jeevika:", str(jeevika_logo), jeevika_logo.exists())
+    st.write("Survey:", str(HTML_PATH), HTML_PATH.exists())
 
 try:
     html = HTML_PATH.read_text(encoding="utf-8")

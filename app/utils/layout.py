@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import streamlit as st
 
-ISOFT_LOGO = Path(
-    r"C:\All Folders\Learning AI\jeevika\jeevika-decision-studio\app\isoftpic.png"
-)
-JEEVIKA_LOGO = Path(
-    r"C:\All Folders\Learning AI\jeevika\jeevika-decision-studio\app\Jeevikapic.png"
-)
+from app.utils.paths import asset_path
+
+ISOFT_LOGO = asset_path("isoftpic.png")
+JEEVIKA_LOGO = asset_path("Jeevikapic.png")
 
 
 def render_page_header(page_title: str) -> None:
