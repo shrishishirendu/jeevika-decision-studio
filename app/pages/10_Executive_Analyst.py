@@ -48,9 +48,6 @@ except Exception as exc:  # pragma: no cover
     st.error(f"Failed to load cleaned dataset: {exc}")
     st.stop()
 
-if not parquet_path.exists():
-    st.warning("Processed parquet not found. Using cleaned raw CSV in memory.")
-
 filtered_df, selections = apply_filters(df)
 
 @st.cache_data(show_spinner=False)
