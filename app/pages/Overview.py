@@ -14,9 +14,8 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 
-from app.ui_filters import load_clean_df
+from app.ui_filters import apply_filters, load_clean_df
 from app.utils.overview_plots import (
-    apply_filters as apply_overview_filters,
     get_existing_cols,
     plot_cat_bar,
     plot_coverage_bar,
@@ -61,10 +60,27 @@ except Exception as exc:  # pragma: no cover
 if not parquet_path.exists():
     st.warning("Processed parquet not found. Using cleaned raw CSV in memory.")
 
-st.markdown("### Filters")
-df_view, selections = apply_overview_filters(df)
+filtered_df, selections = apply_filters(df)
+filtered_df = filtered_df.copy()
 
-st.divider()
+# Align raw vs cleaned schema for meeting attendance fields.
+if (
+    "shg_meetings_attended_monthly" not in filtered_df.columns
+    and "meeting_attendance" in filtered_df.columns
+):
+    filtered_df["shg_meetings_attended_monthly"] = filtered_df["meeting_attendance"]
+if (
+    "meeting_attendance" not in filtered_df.columns
+    and "shg_meetings_attended_monthly" in filtered_df.columns
+):
+    filtered_df["meeting_attendance"] = filtered_df["shg_meetings_attended_monthly"]
+
+st.sidebar.markdown("### Active Filters")
+if selections:
+    for key, value in selections.items():
+        st.sidebar.write(f"{key}: {value}")
+else:
+    st.sidebar.write("Showing full dataset (no filters selected)")
 
 
 def pick_first_existing(df_: pd.DataFrame, candidates: list[str]) -> str | None:
@@ -89,15 +105,16 @@ def plot_discrete_or_hist(df_: pd.DataFrame, col: str, title: str) -> None:
             numeric.dropna()
             .value_counts()
             .sort_index()
+            .rename("value_count")
             .reset_index()
-            .rename(columns={"index": col, col: "count"})
+            .rename(columns={"index": col})
         )
         fig = px.bar(
             counts,
             x=col,
-            y="count",
+            y="value_count",
             title=title,
-            labels={col: col.replace("_", " ").title(), "count": "Responses"},
+            labels={col: col.replace("_", " ").title(), "value_count": "Responses"},
         )
         median_val = float(numeric.median())
         fig.add_vline(x=median_val, line_dash="dash", line_color="gray")
@@ -226,7 +243,7 @@ with tabs[0]:
     col1, col2 = st.columns(2)
     with col1:
         fig = plot_hist_box(
-            df_view,
+            filtered_df,
             "membership_duration_months",
             "Membership Duration (months)",
         )
@@ -239,7 +256,7 @@ with tabs[0]:
         else:
             st.info("membership_duration_months not available.")
     with col2:
-        fig = plot_cat_bar(df_view, "village_block", "Village/Block Distribution", top_n=12)
+        fig = plot_cat_bar(filtered_df, "village_block", "Village/Block Distribution", top_n=12)
         if fig is not None:
             st.plotly_chart(fig, use_container_width=True)
             chart_explainer(
@@ -250,7 +267,7 @@ with tabs[0]:
             st.info("village_block not available.")
 
     plot_discrete_or_hist(
-        df_view,
+        filtered_df,
         "shg_meetings_attended_monthly",
         "SHG Meetings Attended (monthly)",
     )
@@ -269,9 +286,9 @@ with tabs[0]:
         "income_generating_activity_frequency",
         "loan_access_knowledge",
     ]
-    participation_cols = get_existing_cols(df_view, participation_cols)
+    participation_cols = get_existing_cols(filtered_df, participation_cols)
     participation_plot = plot_coverage_bar(
-        df_view, participation_cols, "Participation Coverage", label="% Active"
+        filtered_df, participation_cols, "Participation Coverage", label="% Active"
     )
     if participation_plot:
         fig, _ = participation_plot
@@ -296,9 +313,9 @@ with tabs[0]:
         "health_nutrition_awareness",
         "welfare_linkage_awareness",
     ]
-    awareness_cols = get_existing_cols(df_view, awareness_cols)
+    awareness_cols = get_existing_cols(filtered_df, awareness_cols)
     awareness_plot = plot_coverage_bar(
-        df_view, awareness_cols, "Awareness Coverage", label="% Aware"
+        filtered_df, awareness_cols, "Awareness Coverage", label="% Aware"
     )
     if awareness_plot:
         fig, _ = awareness_plot
@@ -314,7 +331,7 @@ with tabs[0]:
     st.caption("Outcome signals on income change, perceived impact, and sentiment.")
 
     fig = plot_hist_box(
-        df_view,
+        filtered_df,
         "household_income_increase_percent",
         "Household Income Increase (%)",
     )
@@ -328,15 +345,15 @@ with tabs[0]:
         st.info("household_income_increase_percent not available.")
 
     impact_col = pick_first_existing(
-        df_view,
+        filtered_df,
         ["overall_impact_rating", "impact_rating", "overall_impact"],
     )
     if impact_col:
-        series = df_view[impact_col]
+        series = filtered_df[impact_col]
         numeric = pd.to_numeric(series, errors="coerce")
         if numeric.notna().any():
             fig = px.histogram(
-                df_view,
+                filtered_df,
                 x=impact_col,
                 title="Overall Impact Rating",
                 labels={impact_col: "Impact Rating"},
@@ -360,9 +377,9 @@ with tabs[0]:
         st.info("overall_impact_rating not available.")
 
     sentiment_cols = ["satisfaction_level", "future_program_confidence", "referral_likelihood"]
-    if not build_likert_stack(df_view, sentiment_cols, "Sentiment Snapshot"):
-        for col in get_existing_cols(df_view, sentiment_cols):
-            counts = df_view[col].astype("string").value_counts().reset_index()
+    if not build_likert_stack(filtered_df, sentiment_cols, "Sentiment Snapshot"):
+        for col in get_existing_cols(filtered_df, sentiment_cols):
+            counts = filtered_df[col].astype("string").value_counts().reset_index()
             counts.columns = [col, "count"]
             fig = px.bar(
                 counts,
@@ -380,11 +397,11 @@ with tabs[0]:
     st.subheader("Single Best Improvement")
     st.caption("Most common themes from open-ended feedback.")
     improvement_col = pick_first_existing(
-        df_view,
+        filtered_df,
         ["single_best_improvement", "best_improvement", "improvement_suggestion", "improvement_area"],
     )
     if improvement_col:
-        keywords_df = extract_keywords(df_view[improvement_col])
+        keywords_df = extract_keywords(filtered_df[improvement_col])
         if not keywords_df.empty:
             fig = px.bar(
                 keywords_df,
@@ -402,9 +419,9 @@ with tabs[0]:
             )
             with st.expander("Sample responses", expanded=False):
                 sample = (
-                    df_view[improvement_col]
+                    filtered_df[improvement_col]
                     .dropna()
-                    .sample(n=min(10, df_view[improvement_col].dropna().shape[0]), random_state=42)
+                    .sample(n=min(10, filtered_df[improvement_col].dropna().shape[0]), random_state=42)
                 )
                 st.dataframe(sample.to_frame(name=improvement_col), use_container_width=True)
         else:
@@ -416,11 +433,11 @@ with tabs[1]:
     st.subheader("Curated Highlights")
     st.caption("Targeted bivariate views for key engagement and outcome relationships.")
 
-    if "engagement_level" in df_view.columns and "overall_impact_rating" in df_view.columns:
-        impact_series = pd.to_numeric(df_view["overall_impact_rating"], errors="coerce")
+    if "engagement_level" in filtered_df.columns and "overall_impact_rating" in filtered_df.columns:
+        impact_series = pd.to_numeric(filtered_df["overall_impact_rating"], errors="coerce")
         if impact_series.notna().any():
             fig = px.box(
-                df_view,
+                filtered_df,
                 x="engagement_level",
                 y="overall_impact_rating",
                 title="Overall Impact by Engagement Level",
@@ -431,8 +448,8 @@ with tabs[1]:
             )
         else:
             ctab = pd.crosstab(
-                df_view["engagement_level"],
-                df_view["overall_impact_rating"],
+                filtered_df["engagement_level"],
+                filtered_df["overall_impact_rating"],
                 normalize="index",
             ) * 100
             fig = px.imshow(
@@ -449,12 +466,12 @@ with tabs[1]:
         )
 
     clarity_col = pick_first_existing(
-        df_view,
+        filtered_df,
         ["scheme_clarity_level", "scheme_clarity", "clarity_level", "scheme_clarity_rating"],
     )
-    if "scheme_awareness_count" in df_view.columns and clarity_col:
-        awareness_numeric = pd.to_numeric(df_view["scheme_awareness_count"], errors="coerce")
-        clarity_series = df_view[clarity_col].astype("string")
+    if "scheme_awareness_count" in filtered_df.columns and clarity_col:
+        awareness_numeric = pd.to_numeric(filtered_df["scheme_awareness_count"], errors="coerce")
+        clarity_series = filtered_df[clarity_col].astype("string")
         if awareness_numeric.notna().any():
             bins = pd.qcut(
                 awareness_numeric.dropna(),
@@ -482,11 +499,11 @@ with tabs[1]:
                 "Clarity groups with low awareness bands indicate a gap.",
             )
 
-    if "shg_meetings_attended_monthly" in df_view.columns and "satisfaction_level" in df_view.columns:
-        attendance_numeric = pd.to_numeric(df_view["shg_meetings_attended_monthly"], errors="coerce")
+    if "shg_meetings_attended_monthly" in filtered_df.columns and "satisfaction_level" in filtered_df.columns:
+        attendance_numeric = pd.to_numeric(filtered_df["shg_meetings_attended_monthly"], errors="coerce")
         if attendance_numeric.notna().any():
             fig = px.box(
-                df_view,
+                filtered_df,
                 x="satisfaction_level",
                 y="shg_meetings_attended_monthly",
                 title="Meeting Attendance by Satisfaction Level",
@@ -501,11 +518,11 @@ with tabs[1]:
                 "Whether more satisfied respondents attend more meetings.",
             )
 
-    if "membership_duration_months" in df_view.columns and "engagement_level" in df_view.columns:
-        duration_numeric = pd.to_numeric(df_view["membership_duration_months"], errors="coerce")
+    if "membership_duration_months" in filtered_df.columns and "engagement_level" in filtered_df.columns:
+        duration_numeric = pd.to_numeric(filtered_df["membership_duration_months"], errors="coerce")
         if duration_numeric.notna().any():
             fig = px.box(
-                df_view,
+                filtered_df,
                 x="engagement_level",
                 y="membership_duration_months",
                 title="Membership Duration by Engagement Level",
@@ -555,14 +572,14 @@ with tabs[1]:
         "future_program_confidence",
         "referral_likelihood",
     ]
-    allowed_cols = [col for col in allowed_cols if col and col in df_view.columns]
+    allowed_cols = [col for col in allowed_cols if col and col in filtered_df.columns]
     if len(allowed_cols) >= 2:
         col1, col2 = st.columns(2)
         x_choice = col1.selectbox("X-axis", allowed_cols, index=0)
         y_choice = col2.selectbox(
             "Y-axis", [c for c in allowed_cols if c != x_choice], index=0
         )
-        fig, explanation, medians = smart_bivariate_plot(df_view, x_choice, y_choice)
+        fig, explanation, medians = smart_bivariate_plot(filtered_df, x_choice, y_choice)
         if fig is not None:
             st.plotly_chart(fig, use_container_width=True)
             chart_explainer(
@@ -606,8 +623,8 @@ with tabs[2]:
                 f"Least recognized benefit: {low['variable']} ({low['positive_rate']:.1f}%)."
             )
 
-    if "household_income_increase_percent" in df_view.columns:
-        income = pd.to_numeric(df_view["household_income_increase_percent"], errors="coerce")
+    if "household_income_increase_percent" in filtered_df.columns:
+        income = pd.to_numeric(filtered_df["household_income_increase_percent"], errors="coerce")
         if income.notna().any():
             median_income = income.median()
             positive_share = (income > 0).mean() * 100
@@ -618,8 +635,8 @@ with tabs[2]:
                 f"{positive_share:.1f}% report a positive income change."
             )
 
-    if "satisfaction_level" in df_view.columns:
-        top_val = df_view["satisfaction_level"].astype("string").value_counts().idxmax()
+    if "satisfaction_level" in filtered_df.columns:
+        top_val = filtered_df["satisfaction_level"].astype("string").value_counts().idxmax()
         stories.append(f"Most common satisfaction response: {top_val}.")
 
     if stories:

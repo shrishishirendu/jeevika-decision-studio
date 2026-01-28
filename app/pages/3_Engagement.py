@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 
-from app.ui_filters import apply_filters, load_clean_df
+from app.ui_filters import load_clean_df
 from src.encoding import coerce_numeric, encode_likert_5, encode_referral
 from src.engagement_indices import (
     compute_affective_index,
@@ -39,6 +39,178 @@ def safe_float(value):
         return float(value)
     except TypeError:
         return None
+
+
+def first_matching_column(df: pd.DataFrame, candidates: list[str]) -> str | None:
+    for col in candidates:
+        if col in df.columns:
+            return col
+    return None
+
+
+def clear_engagement_filters() -> None:
+    for key in list(st.session_state.keys()):
+        if key.startswith("engagement_filter_"):
+            del st.session_state[key]
+
+
+def request_rerun() -> None:
+    if hasattr(st, "rerun"):
+        st.rerun()
+    else:
+        st.experimental_rerun()
+
+
+def apply_engagement_filters(df: pd.DataFrame) -> tuple[pd.DataFrame, dict, list[str], dict]:
+    filtered = df.copy()
+    selected: dict[str, object] = {}
+    applied_summaries: list[str] = []
+    diagnostics: dict[str, object] = {}
+
+    date_candidates = [
+        "date",
+        "Date",
+        "created_at",
+        "createdAt",
+        "timestamp",
+        "time",
+        "event_date",
+        "week_start",
+        "month",
+    ]
+    segment_candidates = ["segment", "Segment", "cohort", "Cohort", "group", "Group"]
+    org_candidates = [
+        "organization",
+        "Organization",
+        "org",
+        "Org",
+        "partner",
+        "Partner",
+        "implementing_partner",
+        "ngo",
+        "NGO",
+        "program",
+        "Program",
+    ]
+    district_candidates = ["district", "District"]
+    gender_candidates = ["gender", "Gender", "sex", "Sex"]
+    shg_candidates = ["shg", "SHG", "shg_name", "group_name"]
+    caste_candidates = ["caste", "Caste", "social_group", "social_category"]
+
+    numeric_candidates = [
+        "membership_duration",
+        "age",
+        "household_income_increase_percent",
+        "meeting_attendance",
+        "shg_meetings_attended_monthly",
+        "participation_count",
+        "total_engagement_index",
+        "behavioral_index",
+        "cognitive_index",
+        "affective_index",
+    ]
+
+    date_col = first_matching_column(filtered, date_candidates)
+    diagnostics["date_col"] = date_col
+    if date_col:
+        parsed_dates = pd.to_datetime(filtered[date_col], errors="coerce")
+        if parsed_dates.notna().any():
+            min_date = parsed_dates.min().date()
+            max_date = parsed_dates.max().date()
+            picked = st.sidebar.date_input(
+                "Date range",
+                value=(min_date, max_date),
+                key="engagement_filter_date",
+            )
+            if isinstance(picked, (tuple, list)) and len(picked) == 2:
+                start_date, end_date = picked
+            else:
+                start_date = picked
+                end_date = picked
+            selected[date_col] = (start_date, end_date)
+            mask = parsed_dates.between(
+                pd.to_datetime(start_date),
+                pd.to_datetime(end_date),
+                inclusive="both",
+            )
+            filtered = filtered[mask]
+            if start_date != min_date or end_date != max_date:
+                applied_summaries.append(f"Date: {start_date} to {end_date}")
+
+    categorical_groups = [
+        ("Segment", segment_candidates),
+        ("Organization", org_candidates),
+        ("District", district_candidates),
+        ("Group / SHG", shg_candidates),
+        ("Gender", gender_candidates),
+        ("Caste", caste_candidates),
+    ]
+    used_cols: set[str] = set()
+    categorical_filters: list[tuple[str, str]] = []
+    for label, candidates in categorical_groups:
+        col = first_matching_column(filtered, candidates)
+        if not col or col in used_cols:
+            continue
+        series = filtered[col]
+        if pd.api.types.is_numeric_dtype(series) and series.nunique(dropna=True) > 50:
+            continue
+        categorical_filters.append((label, col))
+        used_cols.add(col)
+        if len(categorical_filters) >= 4:
+            break
+
+    diagnostics["categorical_cols"] = [col for _, col in categorical_filters]
+
+    for label, col in categorical_filters:
+        options = sorted(filtered[col].dropna().unique().tolist())
+        if not options:
+            continue
+        key = f"engagement_filter_{col}"
+        choices = st.sidebar.multiselect(label, options, default=options, key=key)
+        selected[col] = choices
+        if not choices:
+            filtered = filtered.iloc[0:0]
+            applied_summaries.append(f"{label}: none")
+        else:
+            filtered = filtered[filtered[col].isin(choices)]
+            if len(choices) != len(options):
+                applied_summaries.append(f"{label}: {len(choices)}/{len(options)}")
+
+    numeric_col = first_matching_column(filtered, numeric_candidates)
+    diagnostics["numeric_col"] = numeric_col
+    if numeric_col:
+        numeric_series = pd.to_numeric(filtered[numeric_col], errors="coerce")
+        if numeric_series.notna().any():
+            min_val = float(numeric_series.min())
+            max_val = float(numeric_series.max())
+            if min_val != max_val:
+                range_val = max_val - min_val
+                integer_like = pd.api.types.is_integer_dtype(numeric_series.dropna())
+                if integer_like:
+                    min_val = int(min_val)
+                    max_val = int(max_val)
+                    step = 1
+                else:
+                    step = 1.0 if range_val >= 10 else max(round(range_val / 100, 4), 0.01)
+                picked = st.sidebar.slider(
+                    f"{numeric_col.replace('_', ' ').title()} range",
+                    min_value=min_val,
+                    max_value=max_val,
+                    value=(min_val, max_val),
+                    step=step,
+                    key=f"engagement_filter_num_{numeric_col}",
+                )
+                selected[numeric_col] = picked
+                filtered = filtered[
+                    (numeric_series >= picked[0]) & (numeric_series <= picked[1])
+                ]
+                if picked[0] != min_val or picked[1] != max_val:
+                    applied_summaries.append(
+                        f"{numeric_col.replace('_', ' ').title()}: {picked[0]:.2f} to {picked[1]:.2f}"
+                    )
+
+    diagnostics["selected_filters"] = selected
+    return filtered, selected, applied_summaries, diagnostics
 
 
 def compute_district_correlations(df: pd.DataFrame, min_n: int = 50) -> pd.DataFrame:
@@ -108,12 +280,33 @@ except Exception as exc:  # pragma: no cover
 if not parquet_path.exists():
     st.warning("Processed parquet not found. Using cleaned raw CSV in memory.")
 
-filtered_df, selections = apply_filters(df)
-filtered_df = filtered_df.copy()
+filtered_df = df.copy()
 
 st.sidebar.markdown("### Active Filters")
-for key, value in selections.items():
-    st.sidebar.write(f"{key}: {value}")
+if st.sidebar.button("Reset filters", key="engagement_filters_reset"):
+    clear_engagement_filters()
+    request_rerun()
+
+filtered_df, selections, applied_summaries, diagnostics = apply_engagement_filters(filtered_df)
+
+if applied_summaries:
+    st.sidebar.markdown("**Applied filters**")
+    for summary in applied_summaries:
+        st.sidebar.write(summary)
+else:
+    st.sidebar.caption("No filters applied (showing all data).")
+
+with st.sidebar.expander("Filter diagnostics", expanded=False):
+    st.write("Page: Engagement")
+    st.write("Detected date column:", diagnostics.get("date_col"))
+    st.write("Detected categorical columns:", diagnostics.get("categorical_cols"))
+    st.write("Detected numeric column:", diagnostics.get("numeric_col"))
+    st.write(
+        "Session filter keys:",
+        [key for key in st.session_state.keys() if key.startswith("engagement_filter_")],
+    )
+    st.write("Selections:")
+    st.json(selections)
 
 if "meeting_attendance" not in filtered_df.columns and "shg_meetings_attended_monthly" in filtered_df.columns:
     filtered_df["meeting_attendance"] = filtered_df["shg_meetings_attended_monthly"]

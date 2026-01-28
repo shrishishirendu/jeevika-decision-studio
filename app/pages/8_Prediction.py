@@ -16,7 +16,6 @@ if str(ROOT) not in sys.path:
 from app.ui_filters import apply_filters, load_clean_df
 from src import ml_high_uplift as ml_high_uplift
 from src import recommendations as recommendations
-from src.readiness import build_readiness_frame
 from src.segments import assign_population_segments
 from app.utils.layout import render_page_header
 
@@ -66,8 +65,11 @@ filtered_df, selections = apply_filters(df)
 filtered_df = filtered_df.copy()
 
 st.sidebar.markdown("### Active Filters")
-for key, value in selections.items():
-    st.sidebar.write(f"{key}: {value}")
+if selections:
+    for key, value in selections.items():
+        st.sidebar.write(f"{key}: {value}")
+else:
+    st.sidebar.write("Showing full dataset (no filters selected)")
 
 threshold = st.slider("Uplift threshold (%)", min_value=10, max_value=30, value=20)
 model_choice = st.selectbox("Model", ["LogisticRegression", "RandomForest"])
@@ -129,7 +131,7 @@ if not hasattr(ml_high_uplift, "predict_with_model"):
 
 pred_probs, pred_classes = ml_high_uplift.predict_with_model(filtered_df, model, threshold=0.5)
 
-scored_df = build_readiness_frame(filtered_df)
+scored_df = filtered_df.copy()
 scored_df["segment_label"] = assign_population_segments(scored_df)
 scored_df["predicted_prob"] = pred_probs
 scored_df["predicted_class"] = pred_classes
@@ -147,7 +149,7 @@ scored_df["risk_status"] = scored_df.apply(
 )
 
 st.subheader("Top Candidates")
-cols = ["respondent_id", "district", "segment_label", "decision_profile", "risk_status", "predicted_prob"]
+cols = ["respondent_id", "district", "segment_label", "risk_status", "predicted_prob", "predicted_class"]
 if "household_income_increase_percent" in scored_df.columns:
     cols.append("household_income_increase_percent")
 

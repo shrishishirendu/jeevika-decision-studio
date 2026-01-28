@@ -69,8 +69,11 @@ filtered_df, selections = apply_filters(df)
 filtered_df = filtered_df.copy()
 
 st.sidebar.markdown("### Active Filters")
-for key, value in selections.items():
-    st.sidebar.write(f"{key}: {value}")
+if selections:
+    for key, value in selections.items():
+        st.sidebar.write(f"{key}: {value}")
+else:
+    st.sidebar.write("Showing full dataset (no filters selected)")
 
 filtered_df["segment_label"] = assign_population_segments(filtered_df)
 
@@ -86,73 +89,6 @@ if "scheme_awareness_count" in filtered_df.columns:
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("scheme_awareness_count not available.")
-
-if awareness_cols:
-    awareness_rates = []
-    for col in awareness_cols:
-        series = pd.to_numeric(filtered_df[col], errors="coerce")
-        aware_pct = safe_float((series == 1).mean() * 100)
-        unaware_pct = safe_float((series == 0).mean() * 100)
-        awareness_rates.append(
-            {
-                "scheme": col,
-                "% aware": round(aware_pct, 2) if aware_pct is not None else None,
-                "% not aware": round(unaware_pct, 2) if unaware_pct is not None else None,
-            }
-        )
-    awareness_df = pd.DataFrame(awareness_rates)
-    st.dataframe(awareness_df, use_container_width=True, height=300)
-else:
-    st.info("No *_awareness columns available.")
-
-st.subheader("Scheme-wise Gap Prioritization")
-if awareness_cols:
-    gap_df = awareness_df.copy()
-    gap_df["priority"] = np.where(
-        gap_df["% not aware"] > 50,
-        "High",
-        np.where(gap_df["% not aware"] >= 30, "Medium", "Low"),
-    )
-    gap_df = gap_df.sort_values(by="% not aware", ascending=False)
-    st.dataframe(gap_df, use_container_width=True, height=300)
-else:
-    st.info("No scheme awareness data available for prioritization.")
-
-st.subheader("Awareness vs Clarity Matrix")
-clarity_values = []
-if "scheme_clarity_level" in filtered_df.columns:
-    clarity_values.append(encode_likert_5(filtered_df["scheme_clarity_level"]))
-if "application_process_knowledge" in filtered_df.columns:
-    clarity_values.append(encode_likert_5(filtered_df["application_process_knowledge"]))
-
-if "scheme_awareness_count" in filtered_df.columns and clarity_values:
-    awareness = pd.to_numeric(filtered_df["scheme_awareness_count"], errors="coerce")
-    clarity = pd.concat(clarity_values, axis=1).mean(axis=1)
-    awareness_median = awareness.median()
-    clarity_median = clarity.median()
-
-    matrix_df = pd.DataFrame(
-        {
-            "awareness_high": awareness >= awareness_median,
-            "clarity_high": clarity >= clarity_median,
-        }
-    )
-    summary = (
-        matrix_df.groupby(["awareness_high", "clarity_high"]).size().reset_index(name="count")
-    )
-    summary["pct"] = (summary["count"] / summary["count"].sum() * 100).round(2)
-    st.dataframe(summary, use_container_width=True, height=220)
-
-    scatter_df = pd.DataFrame({"awareness": awareness, "clarity": clarity}).dropna()
-    fig = px.scatter(
-        scatter_df,
-        x="awareness",
-        y="clarity",
-        title="Awareness vs Clarity",
-    )
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.info("Awareness vs clarity matrix unavailable (missing inputs).")
 
 st.subheader("Awareness by Segment")
 if "segment_label" in filtered_df.columns:

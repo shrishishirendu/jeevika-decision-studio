@@ -15,7 +15,6 @@ if str(ROOT) not in sys.path:
 from app.ui_filters import apply_filters, load_clean_df
 from src.ml_high_uplift import get_predictions_for_df
 from src import recommendations as recommendations
-from src.readiness import build_readiness_frame
 from src.segments import assign_population_segments
 from app.utils.layout import render_page_header
 
@@ -58,8 +57,11 @@ filtered_df, selections = apply_filters(df)
 filtered_df = filtered_df.copy()
 
 st.sidebar.markdown("### Active Filters")
-for key, value in selections.items():
-    st.sidebar.write(f"{key}: {value}")
+if selections:
+    for key, value in selections.items():
+        st.sidebar.write(f"{key}: {value}")
+else:
+    st.sidebar.write("Showing full dataset (no filters selected)")
 
 id_col = "respondent_id" if "respondent_id" in filtered_df.columns else None
 if id_col is None:
@@ -80,9 +82,6 @@ else:
 if "segment_label" not in merged.columns:
     merged["segment_label"] = assign_population_segments(merged)
 
-if "decision_profile" not in merged.columns:
-    merged = build_readiness_frame(merged)
-
 ids = merged[id_col].dropna().astype(str).unique().tolist()
 if not ids:
     st.info("No IDs available to recommend.")
@@ -92,7 +91,13 @@ selected_id = st.selectbox("Select respondent ID", ids)
 row = merged[merged[id_col].astype(str) == str(selected_id)].iloc[0]
 
 prediction = int(row.get("predicted_class", 0)) if pd.notna(row.get("predicted_class")) else 0
-proba = float(row.get("probability", 0)) if pd.notna(row.get("probability")) else 0.0
+proba_candidates = [
+    row.get("predicted_prob"),
+    row.get("probability"),
+    row.get("predicted_probability"),
+]
+proba_value = next((val for val in proba_candidates if pd.notna(val)), 0.0)
+proba = float(proba_value) if proba_value is not None else 0.0
 threshold = 0.5
 
 generate_recommendation = getattr(recommendations, "generate_recommendation", None)

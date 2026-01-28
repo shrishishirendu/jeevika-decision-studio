@@ -71,8 +71,11 @@ filtered_df, selections = apply_filters(df)
 filtered_df = filtered_df.copy()
 
 st.sidebar.markdown("### Active Filters")
-for key, value in selections.items():
-    st.sidebar.write(f"{key}: {value}")
+if selections:
+    for key, value in selections.items():
+        st.sidebar.write(f"{key}: {value}")
+else:
+    st.sidebar.write("Showing full dataset (no filters selected)")
 
 filtered_df["behavioral_index"] = compute_behavioral_index(filtered_df)
 filtered_df["cognitive_index"] = compute_cognitive_index(filtered_df)

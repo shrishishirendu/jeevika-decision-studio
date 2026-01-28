@@ -57,8 +57,11 @@ filtered_df, selections = apply_filters(df)
 filtered_df = filtered_df.copy()
 
 st.sidebar.markdown("### Active Filters")
-for key, value in selections.items():
-    st.sidebar.write(f"{key}: {value}")
+if selections:
+    for key, value in selections.items():
+        st.sidebar.write(f"{key}: {value}")
+else:
+    st.sidebar.write("Showing full dataset (no filters selected)")
 
 df_r = build_readiness_frame(filtered_df)
 
